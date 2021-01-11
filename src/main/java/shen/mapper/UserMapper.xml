@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shen.mapper.UserMapper">
+    <select id="loadUserByUsername" resultType="shen.dao.User">
+        select * from  user where username = #{username};
+    </select>
+
+    <insert id="reg" useGeneratedKeys="true" keyProperty="id">
+        insert into user set username=#{username},password=#{password},nickname=#{nickname};
+    </insert>
+
+    <update id="updateUserEmail">
+        update  user set email=#{email} where id=#{id};
+    </update>
+
+    <select id="getUserByNickname" resultMap="BaseResultMap">
+        select u.*,r.`id` as rid,r.`name` as rname from user u,roles r,roles_user ru
+        where u.`id`=ru.`uid` and r.`id`=ru.`rid` and u.`id` not in(select u.`id`
+        from user u,roles_user ru where u.`id`=ru.`uid` and ru.`rid`=1)
+        <choose>
+            <when test="nickname!=null and nickname!=''">
+                and u.nickname like concat('%',#{nickname},'%') order by u.`id`
+            </when>
+            <otherwise>
+                order by u.`id` limit 20
+            </otherwise>
+        </choose>
+    </select>
+
+    <resultMap id="BaseResultMap" type="shen.dao.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nickname" property="nickname"/>
+        <result column="password" property="password"/>
+        <result column="enabled" property="enabled"/>
+        <result column="email" property="email"/>
+        <result column="userface" property="userface"/>
+        <result column="regTime" property="regTime"/>
+        <collection property="roles" ofType="shen.dao.Role">
+            <id column="rid" property="id"/>
+            <result column="rname" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getUserById" resultMap="BaseResultMap">
+        select u.*,r.`id` as rid,r.`name` as rname from user u,roles r,roles_user ru
+        where u.`id`=ru.`uid` and r.`id`=ru.`rid` and u.`id`=#{id};
+    </select>
+
+    <select id="getAllRole" resultType="shen.dao.Role">
+        select * from roles;
+    </select>
+
+    <update id="updateUserEnabled">
+        update user set enabled=#{enabled} where id=#{uid};
+    </update>
+
+    <delete id="deleteUserById">
+        delete from user where id=#{id};
+    </delete>
+
+    <delete id="deleteUserRolesByUid">
+        delete from roles_user where uid=#{id};
+    </delete>
+
+    <insert id="setUserRoles">
+        insert into roles_user(rid,uid) values
+        <foreach collection="rids" separator="," item="rid">
+            (#{rid},#{id})
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shen.mapper.RolesMapper">
+    <insert id="addRoles">
+        insert  into roles_user values
+        <foreach collection="role" item="role" separator=",">
+            (null,#{role},#{uid})
+        </foreach>
+    </insert>
+    <select id="getRolesByUid" parameterType="int" resultType="shen.dao.Role">
+        select r.* from roles r,roles_user ru where r.`id`=ru.`rid`
+        and ru.`uid`=#{uid}
+    </select>
+</mapper>

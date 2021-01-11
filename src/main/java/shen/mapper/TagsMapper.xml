@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shen.mapper.TagsMapper">
+    <delete id="deleteTagsByAid" parameterType="int">
+        delete from tags where aid = #{aid};
+    </delete>
+    <insert id="savaTags" >
+        insert IGNORE into tags(tagName) values
+        <foreach collection="tags" item="tag" separator=",">
+            (#{tag})
+        </foreach>
+    </insert>
+    <select id="getTagsIdByTagName" resultType="shen.dao.Tags">
+        select id from tags where tagName in
+        <foreach collection="tagNames" item="tagName" separator="," open="(" close=")">
+            #{tagName}
+        </foreach>
+    </select>
+    <insert id="saveTags2ArticleTags">
+        insert into article_tags(aid,tid) values
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{aid},#{tagId})
+        </foreach>
+    </insert>
+</mapper>
